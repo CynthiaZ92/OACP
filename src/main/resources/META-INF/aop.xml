@@ -1,11 +1,11 @@
 <aspectj>
 
     <aspects>
-        <aspect name="se.kth.csc.progsys.egsp.MonitorAspect"/>
+        <aspect name="se.kth.csc.progsys.oacp.MonitorAspect"/>
     </aspects>
 
     <weaver options="-XnoInline">
-        <include within="se.kth.csc.progsys.egsp.*"/>
+        <include within="se.kth.csc.progsys.oacp.*"/>
         <include within="akka.actor.*"/>
     </weaver>
 

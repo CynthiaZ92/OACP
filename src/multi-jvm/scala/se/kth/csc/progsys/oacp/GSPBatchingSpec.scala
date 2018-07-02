@@ -1,4 +1,4 @@
-package se.kth.csc.progsys.
+package se.kth.csc.progsys.oacp
 
 import language.postfixOps
 import scala.concurrent.duration._
@@ -128,7 +128,7 @@ abstract class GSPBatchingSpec extends MultiNodeSpec(GSPBatchingSpecConfig)
           expectMsg(StartReady)
         }
 
-        for(i <- 1 until 10001) {
+        for(i <- 1 until 1001) {
           //Thread.sleep(5000)
           cli ! BatchingTOp(Map("1" -> "1"))
           //println("time is:" + i)

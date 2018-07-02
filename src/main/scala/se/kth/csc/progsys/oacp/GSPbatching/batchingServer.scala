@@ -322,7 +322,7 @@ class batchingServer(id: Int, automelt: Boolean)(implicit crdtType: CRDT[Map[Str
           member => member ! MUpdateFromServer(mState, msg.time)
         }
         //TODO: Now just send once, will try to implement compare and then stop sending the same message
-        sender() ! MonSuccess
+        sender() ! CvSucc
       }
       stay()
 
@@ -524,7 +524,7 @@ class batchingServer(id: Int, automelt: Boolean)(implicit crdtType: CRDT[Map[Str
           member => member ! MUpdateFromServer(mState, msg.time)
         }
         //TODO: Now just send once, will try to implement compare and then stop sending the same message
-        sender() ! MonSuccess
+        sender() ! CvSucc
       }
       stay()
 
@@ -914,7 +914,7 @@ class batchingServer(id: Int, automelt: Boolean)(implicit crdtType: CRDT[Map[Str
           member => member ! MUpdateFromServer(mState, msg.time)
         }
         //TODO: Now just send once, will try to implement compare and then stop sending the same message
-        sender() ! MonSuccess
+        sender() ! CvSucc
       }
       stay()
 
