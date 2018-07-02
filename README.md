@@ -43,3 +43,11 @@ class CounterClient extends OACPClient[Array[Int], Int, String] {
   
 }
 ````
+### A small test example
+The code is included in src/multi-jvm/scala/se/kth/csc/progsys/oacp/ExampleSpec.scala
+This example uses twitter server and client and includes:
+1. create three server actors(Raft cluster) and one client actor
+2. send message to the raft cluster (msg type: AddFollower(CvOp), Twitter(TOp), Read(TOp))
+3. count the number of messages between client and servers [Optional]
+ 
+Running command: using "sbt" to the interaction mode, then "multi-jvm:testOnly se.kth.csc.progsys.oacp.ExampleSpec".
