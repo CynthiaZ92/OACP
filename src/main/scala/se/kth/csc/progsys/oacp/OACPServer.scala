@@ -153,7 +153,7 @@ class OACPServer[M, V, N](id: Int, automelt: Boolean)(implicit crdtType: CRDT[M,
           if (msg.leaderCommit > replicatedLog.lastIndex) replicatedLog = replicatedLog.commit(replicatedLog.lastIndex)
           else replicatedLog = replicatedLog.commit(msg.leaderCommit)
           stateChanged = false
-          self ! WriteLog(replicatedLog)
+          //self ! WriteLog(replicatedLog)
         }
         goto(Follower) using data.changeLog(replicatedLog)
       }
@@ -626,26 +626,49 @@ class OACPServer[M, V, N](id: Int, automelt: Boolean)(implicit crdtType: CRDT[M,
           Num = Num - 1
         }
       }
-      if (Num > replicatedLog.committedIndex) {
-        replicatedLog = replicatedLog.commit(Num)
-        if (clientRef.isDefined) {
-          log.warning("send success")
-          clientRef.get ! LogIs(replicatedLog.entries)
-          stateChanged = false
-          if (automelt) {
-            log.warning("auto melting for every other servers")
+//      if (Num > replicatedLog.committedIndex) {
+//        replicatedLog = replicatedLog.commit(Num)
+//        if (clientRef.isDefined) {
+//          log.warning("send success")
+//          clientRef.get ! LogIs(replicatedLog.entries)
+//          stateChanged = false
+//          if (automelt) {
+//            log.warning("auto melting for every other servers")
+//            receiveFlag = true
+//            membersExceptSelf(self) foreach {
+//              member =>{
+//                member ! Melt
+//              }
+//            }
+//          }
+//          //fixme: How to do this sending after the message handler?
+//          log.warning("send write log to self")
+//          //self ! WriteLog(replicatedLog)
+//        }
+//        else {log.warning("clientRef not defined")}
+//      }
+      if (data.log.entries.length > Num) {
+        if (Num > data.log.committedIndex && data.currentTerm == data.log.entries(Num).term) {
+          replicatedLog = replicatedLog.commit(Num)
+          if (clientRef.isDefined) {
+            log.warning("send success")
             receiveFlag = true
-            membersExceptSelf(self) foreach {
-              member =>{
-                member ! Melt
+            // clientRef.get ! LogIs(data.log.entries,replicatedLog.refIndex)
+            stateChanged = false
+            if (automelt) {
+              log.warning("auto melting for every other servers")
+              receiveFlag = true
+              membersExceptSelf(self) foreach {
+                member =>{
+                  member ! Melt
+                }
               }
             }
           }
-          //fixme: How to do this sending after the message handler?
-          log.warning("send write log to self")
-          self ! WriteLog(replicatedLog)
+          else {
+            log.warning("clientRef not defined")
+          }
         }
-        else {log.warning("clientRef not defined")}
       }
       else {
         log.warning("ignore the comming message, Num: {}", Num)
@@ -738,6 +761,7 @@ class OACPServer[M, V, N](id: Int, automelt: Boolean)(implicit crdtType: CRDT[M,
           data.currentTerm,
           replicatedLog.lastIndex + 1
         ))
+        clientRef.get ! LogIs(data.log.entries)
         nonUpdate = None
         membersExceptSelf(self) foreach {
           member =>
