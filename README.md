@@ -43,6 +43,8 @@ class CounterClient extends OACPClient[Array[Int], Int, String] {
   
 }
 ````
+### Installing prerequisite
+eventuate-crdt0.10: (https://github.com/RBMHTechnology/eventuate/tree/r-0.10)
 ### A small test example
 The code is included in src/multi-jvm/scala/se/kth/csc/progsys/oacp/ExampleSpec.scala
 This example uses twitter server and client and includes:
