@@ -3,6 +3,7 @@ package se.kth.csc.progsys.oacp.counter
 import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
 import akka.cluster.Cluster
 import akka.cluster.ClusterEvent._
+import com.rbmhtechnology.eventuate.VectorTime
 import com.typesafe.conductr.bundlelib.scala.StatusService
 import se.kth.csc.progsys.oacp.protocol._
 import se.kth.csc.progsys.oacp.OACPClient
@@ -10,18 +11,39 @@ import protocol._
 import se.kth.csc.progsys.oacp.cluster.RaftClusterListener
 import se.kth.csc.progsys.oacp.state.Entry
 import com.typesafe.conductr.lib.scala.ConnectionContext
+import se.kth.csc.progsys.oacp.state.CRDT
 
 /**
   * Created by star on 2017-11-24.
   */
-class CounterClient extends OACPClient[Array[Int], Int, String] {
+class CounterClient extends OACPClient[Array[Int], Int, String] with CRDT[Array[Int], Int, Int, VectorTime] {
 
 //  StatusService.signalStartedOrExit()
+
+  def empty: Array[Int] = Array(0, 0, 0)
+
+  def add = (data: Array[Int], delta: Int, id: Int, time: VectorTime) => {
+      data(id) = data(id) + delta
+      data
+  }
+
+  def merge(currentState: Array[Int], nextState: Array[Int]) = {
+    var state = Array.ofDim[Int](currentState.size)
+    for(i <- 0 until currentState.size) {
+      state(i) = compare(currentState(i), nextState(i))
+    }
+    state
+  }
+
+  def compare(x: Int, y: Int): Int = {
+    if (x < y) y
+    else x
+  }
 
   val CounterClientBehavior: Receive = {
     //Mon update
     case Add(num: Int) =>
-      self forward CvOp(num, "add")
+      self forward CvOp(num, add)
 
       //Non-mon read
     case Get =>
@@ -41,6 +63,7 @@ class CounterClient extends OACPClient[Array[Int], Int, String] {
   def value(l: List[Entry[Array[Int], String]]): Int = {
     ???
   }
+
 }
 
 object CounterClient {

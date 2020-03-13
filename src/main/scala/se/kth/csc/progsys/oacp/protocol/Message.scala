@@ -73,12 +73,14 @@ case object ElectionTimeout extends Message
 case class Resend[T](lead: Option[ActorRef], msg: T) extends Message
 case object CvSucc extends Message
 case class NMUpdateFromClient[T](message: T) extends Message
-case class MUpdateFromClient[V](value: V, op: String, time: VectorTime) extends Message
+//case class MUpdateFromClient[V](value: V, op: String, time: VectorTime) extends Message
+case class MUpdateFromClient[M, V](value: V, fun: ((M,V,Int,VectorTime) => M), time: VectorTime) extends Message
 case class MUpdateFromServer[T](message: T, time: VectorTime) extends Message
 
 //Between Client and the user interface
 case class TOp[T](message: T) extends Message
-case class CvOp[V](value: V, op: String) extends Message
+//case class CvOp[V](value: V, op: String) extends Message
+case class CvOp[V, F](value: V, fun: F) extends Message
 case class SendMessageSuccess[T](message: T) extends Message
 case object ReadServer extends Message
 case object ReadLocal extends Message
@@ -111,3 +113,7 @@ case object StartMessage extends Message
 case object StartReady extends Message
 case object EndMessage extends Message
 case object EndReady extends Message
+
+case object Collect extends Message
+case class CollectReply(state: Map[String, Set[String]]) extends Message
+

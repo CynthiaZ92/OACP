@@ -17,7 +17,7 @@ class ActorSystemMessages {
     private boolean end = false;
     private boolean start = false;
 
-    private static final String FILENAME = "/Users/star/GitSource/OACP/output.log";
+    private static final String FILENAME = "/Users/xizhao/GitHub/OACP/output.log";
 
     void recordMessage(Object msg) {
         //System.out.println("enter recordMessage()" + msg.getClass().getName());

@@ -60,13 +60,13 @@ class OACPClient[M, V, N] extends Actor with ActorLogging{
     case CvSucc =>
       //receiveFrom.get ! SendMessageSuccess
 
-    case CvOp(value: V, op: String) =>
+    case CvOp(value: V, fun:((M,V,Int,VectorTime) => M))=>
       log.info("receive CRDT message")
       receiveFrom = Some(sender())
       val rServer = RandomServer()
       if (rServer.isDefined) {
         time += 1
-        rServer.get ! MUpdateFromClient(value, op, vectorTime(rServer.get, time))
+        rServer.get ! MUpdateFromClient(value, fun, vectorTime(rServer.get, time))
       }
       else {
         log.info("no connection yet")

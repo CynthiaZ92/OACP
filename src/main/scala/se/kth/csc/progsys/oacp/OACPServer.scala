@@ -8,14 +8,13 @@ import se.kth.csc.progsys.oacp.protocol._
 import se.kth.csc.progsys.oacp.protocol.ServerState
 import se.kth.csc.progsys.oacp.cluster.RaftClusterListener
 import se.kth.csc.progsys.oacp.state._
-import se.kth.csc.progsys.oacp.twitter.protocol._
 import com.rbmhtechnology.eventuate.VectorTime
 
 /**
   * Created by star on 02/10/17.
   */
 
-class OACPServer[M, V, N](id: Int, automelt: Boolean)(implicit crdtType: CRDT[M, V]) extends Actor with ActorLogging with FSM[ServerState, Data[M, N]]{
+class OACPServer[M, V, N](id: Int, automelt: Boolean)(implicit crdtType: CRDT[M, V, Int, VectorTime]) extends Actor with ActorLogging with FSM[ServerState, Data[M, N]]{
   override def preStart(): Unit = {
     log.info("Starting new Raft member, will wait for raft cluster configuration...")
   }
@@ -252,13 +251,15 @@ class OACPServer[M, V, N](id: Int, automelt: Boolean)(implicit crdtType: CRDT[M,
 //      }
 //      stay()
 
-    case Event(msg: MUpdateFromClient[V], data: Data[M, N]) if msg.op == "add" =>
+//      change the message handler for more general purpose
+    case Event(msg: MUpdateFromClient[M, V], data: Data[M, N]) =>
       stateChanged = true
       log.warning("item add CRDT Updates") //TODO: add lattice structure
       //no need to send back success message
       if(receiveFlag) {
-        log.warning("add to mState: {}", msg.value)
-        mState = crdtType.add(mState, msg.value, id, msg.time)
+        log.warning("add to State: {}", msg.value)
+        log.warning("which function", msg.fun)
+        mState = crdtType.apply(msg.fun, mState, msg.value, id, msg.time)
         //send messages to all the members in the cluster except self every 50milliseconds
         membersExceptSelf(self) foreach {
           member => member ! MUpdateFromServer(mState, msg.time)
@@ -432,13 +433,14 @@ class OACPServer[M, V, N](id: Int, automelt: Boolean)(implicit crdtType: CRDT[M,
 //      }
 //      stay()
 
-    case Event(msg: MUpdateFromClient[V], data: Data[M, N]) if msg.op == "add" =>
+    case Event(msg: MUpdateFromClient[M, V], data: Data[M, N]) =>
       stateChanged = true
       log.warning("item add CRDT Updates") //TODO: add lattice structure
       //no need to send back success message
       if(receiveFlag) {
-        log.warning("add to mState: {}", msg.value)
-        mState = crdtType.add(mState, msg.value, id, msg.time)
+        log.warning("add to State: {}", msg.value)
+        log.warning("which function", msg.fun)
+        mState = crdtType.apply(msg.fun, mState, msg.value, id, msg.time)
         //send messages to all the members in the cluster except self every 50milliseconds
         membersExceptSelf(self) foreach {
           member => member ! MUpdateFromServer(mState, msg.time)
@@ -718,13 +720,14 @@ class OACPServer[M, V, N](id: Int, automelt: Boolean)(implicit crdtType: CRDT[M,
 //    case Event(msg: MUpdateFromClient[V], data: Data[M, N]) if msg.op == "remove" =>
 //      stay()
 
-    case Event(msg: MUpdateFromClient[V], data: Data[M, N]) if msg.op == "add" =>
+    case Event(msg: MUpdateFromClient[M, V], data: Data[M, N]) =>
       stateChanged = true
       log.warning("item add CRDT Updates") //TODO: add lattice structure
       //no need to send back success message
       if(receiveFlag) {
-        log.warning("add to mState: {}", msg.value)
-        mState = crdtType.add(mState, msg.value, id, msg.time)
+        log.warning("add to State: {}", msg.value)
+        log.warning("which function", msg.fun)
+        mState = crdtType.apply(msg.fun, mState, msg.value, id, msg.time)
         //send messages to all the members in the cluster except self every 50milliseconds
         membersExceptSelf(self) foreach {
           member => member ! MUpdateFromServer(mState, msg.time)

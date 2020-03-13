@@ -8,7 +8,7 @@ import protocol._
 import se.kth.csc.progsys.oacp.OACPServer
 import se.kth.csc.progsys.oacp.cluster.RaftClusterListener
 import se.kth.csc.progsys.oacp.protocol._
-import se.kth.csc.progsys.oacp.state.{CRDT, RGCounter}
+import se.kth.csc.progsys.oacp.state._
 
 /**
   * Created by star on 2017-11-24.
@@ -21,7 +21,7 @@ class CounterServer(id: Int, automelt: Boolean) extends OACPServer[Array[Int], I
 //    case Add => self ! Get
 //  }
 //
-//  override def receive = CounterServerBehavior.orElse(super.receive)
+//   override def receive = CounterServerBehavior.orElse(super.receive)
     override def receive = super.receive
 }
 

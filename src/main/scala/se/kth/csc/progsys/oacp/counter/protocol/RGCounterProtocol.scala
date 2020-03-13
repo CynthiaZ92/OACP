@@ -1,6 +1,6 @@
 package se.kth.csc.progsys.oacp.counter.protocol
 
-import se.kth.csc.progsys.oacp.state.{Entry, RGCounter}
+import se.kth.csc.progsys.oacp.state.{Entry}
 
 
 /**
