@@ -81,6 +81,7 @@ class OACPServer[M, V, N](id: Int, automelt: Boolean)(implicit crdtType: CRDT[M,
       stay()
 
     case Event(StartMessage, _) =>
+      log.warning("check here start message received")
       sender() ! StartReady
       stay()
 
@@ -295,6 +296,7 @@ class OACPServer[M, V, N](id: Int, automelt: Boolean)(implicit crdtType: CRDT[M,
   when(Candidate, stateTimeout = randomElectionTimeout(1500.milliseconds, 3000.milliseconds)) {
 
     case Event(StartMessage, _) =>
+      log.warning("check here start message received")
       sender() ! StartReady
       stay()
 
@@ -474,6 +476,7 @@ class OACPServer[M, V, N](id: Int, automelt: Boolean)(implicit crdtType: CRDT[M,
   when(Leader, stateTimeout = randomElectionTimeout(1500.milliseconds, 3000.milliseconds)) {
 
     case Event(StartMessage, _) =>
+      log.warning("check here start message received")
       sender() ! StartReady
       stay()
 

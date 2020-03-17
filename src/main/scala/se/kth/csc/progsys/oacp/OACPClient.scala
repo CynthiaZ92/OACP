@@ -94,6 +94,7 @@ class OACPClient[M, V, N] extends Actor with ActorLogging{
 //          log.warning("get log from server")
 
     case StartMessage =>
+      log.warning("check here start message received")
       sender() ! StartReady
 
     case EndMessage =>

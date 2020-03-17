@@ -21,7 +21,7 @@ class CounterServer(id: Int, automelt: Boolean) extends OACPServer[Array[Int], I
 //    case Add => self ! Get
 //  }
 //
-//   override def receive = CounterServerBehavior.orElse(super.receive)
+//    override def receive = CounterServerBehavior.orElse(super.receive)
     override def receive = super.receive
 }
 
