@@ -3,11 +3,11 @@ package se.kth.csc.progsys.oacp.state
 import akka.actor.{ActorRef}
 import com.rbmhtechnology.eventuate.{VectorTime, Versioned}
 import scalaz.Scalaz._
-import se.kth.csc.progsys.oacp.counter.CounterClient
+import se.kth.csc.progsys.oacp.counter.CounterCRDT
 
 /**
   * Created by star on 2017-11-24.
-  */
+*/
 trait CRDT[T, A1, A2, A3] {
   def empty: T
 
@@ -122,7 +122,7 @@ object CRDT{
 //
 //  implicit def RGCounterCRDT = new RGCounter
 
-  implicit def RGCounterCRDT = new CounterClient
+  implicit def RGCounterCRDT = CounterCRDT
 //  implicit def ORCartCRDT = new ORCart
 //
 //  implicit def FollwerMapCRDT = new FollowerMap

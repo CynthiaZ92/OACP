@@ -42,7 +42,7 @@ class RaftClusterListener(actor: ActorRef) extends Actor with ActorLogging{
       log.warning(
         "Member is Up: {}. {} nodes in cluster",
         member.address, nodes.size)
-      context.system.actorSelection(RootActorPath(member.address) / "user" / "batching-server") ! Identify()
+      context.system.actorSelection(RootActorPath(member.address) / "user" / "counter-server") ! Identify()
 
     case MemberUp(_) =>
       log.info("Some user might connected")

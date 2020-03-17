@@ -16,6 +16,7 @@ import se.kth.csc.progsys.oacp.counter.protocol._
 import se.kth.csc.progsys.oacp.cluster.RaftClusterListener
 import se.kth.csc.progsys.oacp.counter.{CounterClient, CounterServer}
 import se.kth.csc.progsys.oacp.protocol._
+import com.rbmhtechnology.eventuate.VectorTime
 /**
   * Created by star on 2017-11-24.
   */
@@ -75,6 +76,10 @@ abstract class RGCounterSpec extends MultiNodeSpec(RGCounterSpecConfig)
 
   override def afterAll() = multiNodeSpecAfterAll()
 
+  def vectorTime(id: ActorRef, time: Long): VectorTime = {
+    VectorTime(id.toString -> time)
+  }
+
   val cluster = Cluster(system)
 
   //ADD ITEM TEST PASSED
@@ -83,22 +88,25 @@ abstract class RGCounterSpec extends MultiNodeSpec(RGCounterSpecConfig)
       runOn(server1) {
         Cluster(system) join node(server1).address
 
-        val server = system.actorOf(Props(new CounterServer(0, true)), "batching-server")
-        system.actorOf(RaftClusterListener.props(server), "raft-cluster")
+//        val server = system.actorOf(Props(new CounterServer(0, true)), "counter-server")
+        val server = system.actorOf(Props(classOf[CounterServer], 0, true), name = "counter-server")
+        system.actorOf(RaftClusterListener.props(server), name = "raft-cluster")
       }
 
       runOn(server2) {
         Cluster(system) join node(server1).address
 
-        val server = system.actorOf(Props(new CounterServer(1, true)), "batching-server")
-        system.actorOf(RaftClusterListener.props(server), "raft-cluster")
+//        val server = system.actorOf(Props(new CounterServer(1, true)), "counter-server")
+        val server = system.actorOf(Props(classOf[CounterServer], 1, true), name = "counter-server")
+        system.actorOf(RaftClusterListener.props(server), name = "raft-cluster")
       }
 
       runOn(server3) {
         Cluster(system) join node(server1).address
 
-        val server = system.actorOf(Props(new CounterServer(2, true)), "batching-server")
-        system.actorOf(RaftClusterListener.props(server), "raft-cluster")
+//        val server = system.actorOf(Props(new CounterServer(2, true)), "counter-server")
+        val server = system.actorOf(Props(classOf[CounterServer], 2, true), name = "counter-server")
+        system.actorOf(RaftClusterListener.props(server), name = "raft-cluster")
       }
 
       Thread.sleep(10000)
@@ -107,7 +115,7 @@ abstract class RGCounterSpec extends MultiNodeSpec(RGCounterSpecConfig)
 
       runOn(client1) {
         Cluster(system) join node(server1).address
-        val client = system.actorOf(Props[CounterClient], name = "batching-client")
+        val client = system.actorOf(Props[CounterClient], name = "counter-client")
         system.actorOf(RaftClusterListener.props(client), name = "raft-cluster-for-client")
       }
       Thread.sleep(10000)
@@ -115,7 +123,7 @@ abstract class RGCounterSpec extends MultiNodeSpec(RGCounterSpecConfig)
       println("all-up")
 
       runOn(client1) {
-        val cli = system.actorSelection(node(client1) / "user" / "batching-client")
+        val cli = system.actorSelection(node(client1) / "user" / "counter-client")
         //val cli1 = system.actorSelection(node(client1) / "user" / "user1")
 
         val serverPaths = List(node(server1), node(server2), node(server3))

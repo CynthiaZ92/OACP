@@ -16,18 +16,19 @@ import se.kth.csc.progsys.oacp.state.CRDT
 /**
   * Created by star on 2017-11-24.
   */
-class CounterClient extends OACPClient[Array[Int], Int, String] with CRDT[Array[Int], Int, Int, VectorTime] {
-
-//  StatusService.signalStartedOrExit()
-
-  def empty: Array[Int] = Array(0, 0, 0)
+case object CounterCRDT extends CRDT[Array[Int], Int, Int, VectorTime] {
+  override def empty: Array[Int] = Array(0, 0, 0)
 
   def add = (data: Array[Int], delta: Int, id: Int, time: VectorTime) => {
-      data(id) = data(id) + delta
-      data
+    data(id) = data(id) + delta
+    data
   }
 
-  def merge(currentState: Array[Int], nextState: Array[Int]) = {
+  override def apply(fun: (Array[Int], Int, Int, VectorTime) => Array[Int], crdt: Array[Int], a1: Int, a2: Int, a3: VectorTime): Array[Int] = {
+    fun(crdt, a1, a2, a3)
+  }
+
+  override def merge(currentState: Array[Int], nextState: Array[Int]) = {
     var state = Array.ofDim[Int](currentState.size)
     for(i <- 0 until currentState.size) {
       state(i) = compare(currentState(i), nextState(i))
@@ -39,6 +40,12 @@ class CounterClient extends OACPClient[Array[Int], Int, String] with CRDT[Array[
     if (x < y) y
     else x
   }
+}
+
+class CounterClient extends OACPClient[Array[Int], Int, String] {
+
+  import CounterCRDT._
+//  StatusService.signalStartedOrExit()
 
   val CounterClientBehavior: Receive = {
     //Mon update
@@ -75,7 +82,7 @@ object CounterClient {
 
     // Create an Akka system
     val system = ActorSystem("ClusterSystem")
-    val client = system.actorOf(Props(new CounterClient), name = "batching-client")
+    val client = system.actorOf(Props[CounterClient], name = "counter-client")
     system.actorOf(RaftClusterListener.props(client), name = "raft-cluster-for-batching-client")
     Thread.sleep(10000)
     client ! Add(1)

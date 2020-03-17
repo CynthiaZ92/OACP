@@ -34,7 +34,8 @@ object CounterServer {
 
         // Create an Akka system
         val system = ActorSystem("ClusterSystem")
-        val server = system.actorOf(Props(new CounterServer(1, true)), "batching-server")
-        system.actorOf(RaftClusterListener.props(server), "batching-cluster")
+//        val server = system.actorOf(Props(new CounterServer(1, true)), "counter-server")
+        val server = system.actorOf(Props(classOf[CounterServer], 1, true), "counter-server")
+        system.actorOf(RaftClusterListener.props(server), "counter-cluster")
     }
 }
