@@ -129,7 +129,7 @@ abstract class RGCounterSpec extends MultiNodeSpec(RGCounterSpecConfig)
         val serverPaths = List(node(server1), node(server2), node(server3))
         val selections =
           for(path <- serverPaths)
-            yield system.actorSelection(path / "user" / "counter-server")
+            yield system.actorSelection(path / "user" / "countergit -server")
 
         for(sel <- cli :: selections) {
           sel ! StartMessage

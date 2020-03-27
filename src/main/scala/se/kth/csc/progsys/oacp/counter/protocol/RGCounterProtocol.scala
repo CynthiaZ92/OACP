@@ -12,5 +12,5 @@ trait RGCounterProtocol {
   case object Get extends CounterCmnd
   case object Reset extends CounterCmnd
   //case class ResultIs(mValue: Int) extends CounterCmnd
-  case class ResultIs(l: List[Entry[Array[Int], String]]) extends CounterCmnd
+  case class ResultIs(v: Int) extends CounterCmnd
 }

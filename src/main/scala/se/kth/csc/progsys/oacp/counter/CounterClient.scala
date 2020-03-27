@@ -40,6 +40,22 @@ case object CounterCRDT extends CRDT[Array[Int], Int, Int, VectorTime] {
     if (x < y) y
     else x
   }
+
+  def diff(x: Array[Int], y: Array[Int]) = {
+    var z = Array.ofDim[Int](x.size)
+    for(i <- 0 until x.size) {
+      z(i) = if(y(i)> x(i)) {y(i) - x(i)} else {x(i) - y(i)}
+    }
+    z
+  }
+
+  def value(x: Array[Int]): Int = {
+    var z = 0
+    for(i <- 0 until x.size) {
+      z = z + x(i)
+    }
+    z
+  }
 }
 
 class CounterClient extends OACPClient[Array[Int], Int, String] {
@@ -62,13 +78,19 @@ class CounterClient extends OACPClient[Array[Int], Int, String] {
 
       //Result transformation (a sign for non-mon update success)
     case LogIs(l: List[Entry[Array[Int], String]]) =>
-      receiveFrom.get ! ResultIs(l)
+      receiveFrom.get ! ResultIs(logValue(l))
   }
 
   override def receive = CounterClientBehavior.orElse(super.receive)
 
-  def value(l: List[Entry[Array[Int], String]]): Int = {
-    ???
+  def logValue(l: List[Entry[Array[Int], String]]): Int = {
+    var recent = 0
+    l foreach {
+      i => i.NMCommand.get match {
+        case "Reset" => recent = i.index
+      }
+    }
+    value(diff(l(l.size).mState.get,l(recent).mState.get))
   }
 
 }
